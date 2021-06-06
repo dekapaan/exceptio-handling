@@ -1,2 +1,1 @@
-# exceptio-handling
-# PyQt-exception-handling
+# exception-handling
