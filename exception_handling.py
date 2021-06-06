@@ -101,4 +101,3 @@ class ExceptionHandling(QWidget):
 
 app = QApplication(sys.argv)
 root = ExceptionHandling()
-app.exec()
