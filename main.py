@@ -1,114 +1,74 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5 import QtCore
-import sys
-import qtawesome as qta
+from tkinter import *
+from tkinter import messagebox
 
 
-class UI(QWidget):
-    def __init__(self):
+class UI:
+    def __init__(self, master):
 
-        super().__init__()
-        self.setFixedWidth(600)
-        self.setFixedHeight(300)
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        self.setStyleSheet(
-            """
-            * {background: #222;}
-            
-            QLineEdit {
-                background: white; 
-                color: #222;
-                border-radius: 2px;
-                width: 300px;
-                height: 30px;
-            }
-            """
-        )
-        self.icon_exit = qta.icon('mdi.close', color='white', scale_factor=2)
-        self.btn_exit = QPushButton(self.icon_exit, '', self)
-        self.btn_exit.setCursor(QtCore.Qt.PointingHandCursor)
-        self.btn_exit.clicked.connect(exit)
-        self.btn_exit.setStyleSheet("background: #222;" + "border: none;" + "color: white;")
-        self.btn_exit.move(560, 20)
+        # window setup
+        self.master = master
+        self.master.title('Authentication')
+        self.master.geometry('400x200')
+        self.master.config(bg='#222')
 
-        self.title = QLabel('Authentication', self)
-        self.title.setStyleSheet("background: #222;" + "color: white;")
-        self.title.move(25, 20)
+        # window heading
+        self.lbl_subheading = Label(self.master, text='Enter login details', font='monospace 12', fg='white', bg='#222')
+        self.lbl_subheading.place(x=105, y=10)
 
-        self.entry_username = QLineEdit(self)
-        self.entry_username.setPlaceholderText("Enter username")
-        self.entry_username.setStyleSheet(
-            """
-            background: white; 
-            color: #222;
-            """)
-        self.entry_username.move(160, 97)
+        # User label and entry
+        self.lbl_user = Label(self.master, text='Username', font='monospace 10', fg='white', bg='#222')
+        self.entry_user = Entry(self.master)
+        self.entry_user.place(x=150, y=58)
+        self.lbl_user.place(x=80, y=60)
 
-        self.entry_password = QLineEdit(self)
-        self.entry_password.setPlaceholderText("Enter password")
-        self.entry_password.move(160, 150)
+        # Password label and entry
+        self.lbl_pass = Label(self.master, text='Password', font='monospace 10', fg='white', bg='#222')
+        self.entry_pass = Entry(self.master)
+        self.lbl_pass.place(x=80, y=90)
+        self.entry_pass.place(x=150, y=88)
 
-        self.btn_login = QPushButton('Login', self)
-        self.btn_login.clicked.connect(self.login)
-        self.btn_login.setStyleSheet(
-            """
-            * {
-                background: #222;
-                color: #ff007f;
-                border: 1px solid #ff007f;
-                padding: 10px 50px;
-                border-radius: 2px;
-            }
-            
-            :hover {
-                background: #ff007f;
-                color: #222;
-            }
-            """)
-        self.btn_login.move(244, 200)
-        self.dict_user_pass = {"Zoe": "wavywave99", "Adam": "bighead64", "dekapaan": "dayon"}
+        # Login button
+        self.btn_log = Button(self.master, text='Login', font='monospace 10', bg='#FF69B4', command=self.login)
+        self.btn_log.place(x=165, y=130)
 
-        self.old_pos = self.pos()
+        self.data = {'Zoe': 'wavywave99', 'Adam': 'bighead64', 'dekapaan': 'dayon', 'Brent': 'wasabinotaste'}
 
-        self.show()
+        self.master.mainloop()
 
-    def mousePressEvent(self, event):
-        self.old_pos = event.globalPos()
-
-    def mouseMoveEvent(self, event):
-        moved = QtCore.QPoint(event.globalPos() - self.old_pos)
-        self.move(self.x() + moved.x(), self.y() + moved.y())
-        self.old_pos = event.globalPos()
-
-    def login(self):
+    def login(self):  # checks if username and password are valid
         try:
-            user = self.entry_username.text()
-            password = self.entry_password.text()
-            if user in self.dict_user_pass:
-                if password == self.dict_user_pass[user]:
+            user = self.entry_user.get()
+            password = self.entry_pass.get()
+
+            # Makes sure no empty fields are accepted
+            if user == '':
+                raise KeyError
+            if password == '':
+                raise ValueError
+
+            # if username and password are correct, login proceeds
+            if user in self.data:
+                if password == self.data[user]:
+                    self.master.destroy()
                     import exception_handling
-                    root.destroy()
-                else:
+                else:  # if password incorrect, raise exception
                     raise ValueError
-            else:
+            else:  # if user doesn't exist, raise exception
                 raise KeyError
 
-        except ValueError:
-            msg_box = QMessageBox()
-            msg_box.setText("Incorrect password")
-            msg_box.setIcon(QMessageBox.Critical)
-            msg_box.setWindowTitle("Error")
-            msg_box.exec()
+        except ValueError:  # exception for incorrect or invalid password entry
+            if self.entry_pass.get() == "":
+                messagebox.showerror('Error', 'Password field empty')
+            else:
+                messagebox.showerror('Error', 'Incorrect Password')
 
-        except KeyError:
-            msg_box = QMessageBox()
-            msg_box.setText("Username doesn't exist")
-            msg_box.setIcon(QMessageBox.Critical)
-            msg_box.setWindowTitle("Error")
-            msg_box.exec()
+        except KeyError:  # exception for incorrect or invalid username entry
+            if self.entry_user.get() == '':
+                messagebox.showerror("Error", 'Username field empty')
+            else:
+                messagebox.showerror('Error', "Username doesn't exist")
 
 
-app = QApplication(sys.argv)
-root = UI()
-app.exec()
+# instantiation
+root = Tk()
+UI(root)
